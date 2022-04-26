@@ -11,6 +11,7 @@ import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.contact.isOperator
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.event.events.NewFriendRequestEvent
 import net.mamoe.mirai.event.subscribeFriendMessages
 import net.mamoe.mirai.event.subscribeGroupMessages
 import net.mamoe.mirai.event.subscribeMessages
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 @Api(tags = ["bot"])
 @RestController
@@ -51,8 +53,26 @@ class BotController {
 
     }
 
+    //发送菜单方法
+    suspend fun Bot.sendMenu(qq: Long)
+    {
+        bot.getFriend(qq)?.sendMessage("你好，我是培正森林发布器，请输入'发送微博'开始！")
+    }
+
+
 
     fun Bot.messageDSL() {
+
+
+        //如果有人添加好友，直接同意
+        this.eventChannel.subscribeAlways<NewFriendRequestEvent> {event->
+            event.accept()
+            bot.getGroup(869450527)?.sendMessage("机器人添加了新好友！QQ号是${event.fromId}")
+
+            //发送菜单
+            bot.sendMenu(event.fromId)
+        }
+
         // 监听这个 bot 的来自所有群和好友的消息
         this.eventChannel.subscribeMessages {
             // 当接收到消息 == "你好" 时就回复 "你好!"
@@ -158,6 +178,8 @@ class BotController {
                 File("C:\\Users\\Him18\\Desktop\\$filename").sendAsImageTo(subject)
             }
         }
+
+
 
         eventChannel.subscribeMessages {
             case("你好") {
