@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    username: root
+    password: aaa86925876
+    url: jdbc:mysql://localhost:3306/pzforest?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&serverTimezone=Asia/Shanghai   #mem：
+    driver-class-name: com.mysql.cj.jdbc.NonRegisteringDriver
+bot:
+  qq: 2138805098
+  password: "aaa86925876"
