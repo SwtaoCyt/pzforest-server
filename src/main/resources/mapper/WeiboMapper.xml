@@ -1,5 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.song.pzforest.mapper.WeiboMapper">
+    <resultMap id="BaseResultMap" type="com.song.pzforest.entity.Weibo">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userType" column="user_type" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="userMac" column="user_mac" jdbcType="VARCHAR"/>
+        <result property="weiboId" column="weibo_id" jdbcType="VARCHAR"/>
+        <result property="ipId" column="ip_id" jdbcType="VARCHAR"/>
+        <result property="ipName" column="ip_name" jdbcType="VARCHAR"/>
+        <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="date" column="date" jdbcType="TIMESTAMP"/>
+        <result property="pic" column="pic" jdbcType="VARCHAR"/>
+    </resultMap>
 
+    <sql id="selectVo">
+        select
+            id,user_type,user_id,
+            user_name,user_mac,weibo_id,
+            ip_id,ip_name,ip_address,
+            content,date,pic
+        from m_weibo
+    </sql>
+
+    <select id="selectWeiboListByWeibo">
+        <include refid="selectVo"></include>
+
+    </select>
+
+    <select id="selectByWeiboId" parameterType="string" resultMap="BaseResultMap">
+        <include refid="selectVo"></include>
+            where weibo_id = #{weiboId}
+    </select>
 </mapper>

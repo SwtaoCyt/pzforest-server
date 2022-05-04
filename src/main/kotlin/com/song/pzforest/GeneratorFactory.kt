@@ -51,7 +51,7 @@ object CodeGeneratorFast {
                     )
             } // 配置策略 StrategyConfig
             .strategyConfig { builder: StrategyConfig.Builder ->
-                builder.addInclude("m_weibo") // 增加表匹配，需要映射的数据库中的表名
+                builder.addInclude("m_pic") // 增加表匹配，需要映射的数据库中的表名
                     .addTablePrefix("m_")
                     .addTablePrefix("M_")// 增加过滤表前缀，生成时将数据库表的前缀"p_"去掉
                     // 1.service策略配置
