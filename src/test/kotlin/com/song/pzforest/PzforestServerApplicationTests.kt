@@ -9,13 +9,11 @@ import org.springframework.boot.test.context.SpringBootTest
 class PzforestServerApplicationTests {
 
 
-    @Autowired
-    lateinit var cacheService: CacheService
+
     @Test
     fun contextLoads() {
 
-            cacheService.add(123,"abc")
-            cacheService.get(123)
+
 
     }
 

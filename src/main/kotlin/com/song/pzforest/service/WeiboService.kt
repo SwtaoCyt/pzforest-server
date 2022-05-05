@@ -4,6 +4,7 @@ import com.song.pzforest.entity.Weibo
 import com.baomidou.mybatisplus.extension.service.IService
 
 import java.io.File
+import javax.print.attribute.IntegerSyntax
 
 /**
  * <p>
@@ -21,9 +22,8 @@ interface WeiboService : IService<Weibo>{
 
     fun addWeibo(content:String, logintype: Int, userId: String, weiboId:String)
 
-    fun addWeibo(weibo: String)
-
     fun selectByWeiboId(id:String):Weibo
 
-    fun test(content: String)
+    fun  checkBanWord(str: String):Map<String,Integer>
+
 }

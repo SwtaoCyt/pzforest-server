@@ -24,7 +24,7 @@ public class CacheService {
     lateinit var redisTemplate: StringRedisTemplate;
 
     val DEFAULT_KEY_PREFIX=""
-    val EXPIRE_TIME=1;
+    val EXPIRE_TIME=0.5;
     val EXPIRE_TIME_TYPE=TimeUnit.DAYS
 
     /**

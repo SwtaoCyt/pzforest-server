@@ -6,4 +6,6 @@ interface BotService {
     fun getBot(qq:Long,password:String):Bot
 
     fun afterLogin(bot:Bot)
+
+    fun  doLogin()
 }

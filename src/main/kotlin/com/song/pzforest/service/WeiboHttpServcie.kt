@@ -13,5 +13,6 @@ interface WeiboHttpServcie {
 
     fun getAt()
 
+    fun getAccessToken(clientId: String,client_secret :String,code:String,redirect_uri:String)
 
 }
