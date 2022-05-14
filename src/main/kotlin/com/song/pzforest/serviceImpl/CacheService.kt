@@ -24,8 +24,8 @@ public class CacheService {
     lateinit var redisTemplate: StringRedisTemplate;
 
     val DEFAULT_KEY_PREFIX=""
-    val EXPIRE_TIME=0.5;
-    val EXPIRE_TIME_TYPE=TimeUnit.DAYS
+    val EXPIRE_TIME=6;
+    val EXPIRE_TIME_TYPE=TimeUnit.HOURS
 
     /**
      * 保存数据到缓存
@@ -36,7 +36,7 @@ public class CacheService {
             {
 
                 redisTemplate.opsForValue().set(DEFAULT_KEY_PREFIX+key,JSON.toJSONString(value),
-                    EXPIRE_TIME.toLong(),EXPIRE_TIME_TYPE)
+                    6,TimeUnit.HOURS)
             }
         }catch (e:Exception)
         {

@@ -141,6 +141,7 @@ open class WeiboServiceImpl : ServiceImpl<WeiboMapper, Weibo>(), WeiboService {
 
 
     override fun addWeibo(content: String, logintype: Int, userId: String) {
+
         this.addWeibo(content,null,logintype,userId,null)
     }
 

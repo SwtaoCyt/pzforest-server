@@ -1,5 +1,6 @@
 package com.song.pzforest.serviceImpl
 
+import cn.hutool.core.date.DateTime
 import com.alibaba.fastjson.JSONObject
 import com.song.pzforest.service.PicService
 import com.song.pzforest.service.WeiboHttpServcie
@@ -52,7 +53,7 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
             .setType(MultipartBody.FORM)
             .addFormDataPart("access_token", getAccess_token())
             .addFormDataPart("pic",picContent.path,image)
-            .addFormDataPart("status",status+"http://pzforest.com")
+            .addFormDataPart("status",status+" http://pzforest.com")
             .build()
 
         val request = Request.Builder()
@@ -67,7 +68,7 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
             }
             override fun onResponse(call: Call, response: Response) {
                 val str = response.body()?.string()
-                logger.info { str }
+//                logger.info { str }
             }
         })
     }
@@ -77,9 +78,9 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
     override fun send(status: String)
     {
         val url = "https://api.weibo.com/2/statuses/share.json"
-
+        logger.info { "字符长度${status.length}" }
         val requestBody = FormBody.Builder()
-            .add("status", status+"http://pzforest.com")
+            .add("status", status+" http://pzforest.com")
             .add("access_token",  getAccess_token())
             .build()
 
@@ -94,8 +95,10 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
                 logger.debug { e }
             }
             override fun onResponse(call: Call, response: Response) {
-                val str = response.body()?.string()
-                logger.info { str }
+                val str =JSONObject.parseObject(response.body()?.string())
+//                logger.info { str }
+                logger.info { "post成功，贴文Id:${str.getString("idstr")},发送时间:${str.getString("created_at")},内容:${str.getString("text")},图片:${str.getString("original_pic")}" }
+
             }
         })
     }
@@ -105,6 +108,7 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
          * 获取at我的人
          */
     override fun getAt() {
+            logger.info { "当前时间:${DateTime.now()},开始检测at我的人" }
             val accesstoken =getAccess_token()
        val url = "https://api.weibo.com/2/statuses/mentions.json?access_token=$accesstoken"
 
@@ -135,25 +139,27 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
                    var weiboid =temp.get("idstr").toString()
                     var user = temp.getJSONObject("user")
                     var userid = user.getString("id")
-                    logger.info { text }
+
                     //如果有这条微博的数据那就跳过
-                    if(!ObjectUtils.isEmpty(weiboService.selectByWeiboId(weiboid)))
+                    if(ObjectUtils.isEmpty(weiboService.selectByWeiboId(weiboid)))
                     {
-                        continue
+                        val pic =temp.getString("original_pic")
+                        //如果有图片的话获取图片
+                        if(!ObjectUtils.isEmpty(pic))
+                        {
+                            logger.info { "has Image"+temp.getString("original_pic")}
+                            file= picService.downPic(temp.getString("original_pic"))
+                        }
+
+                        Thread.sleep(5000);
+                        weiboService.addWeibo(text,file,1,userid,weiboid)
+                        logger.info { "有新的At消息，内容是:$text ,用户id:$userid,该条微博id:$weiboid" }
+                        status.add(temp)
                     }
 
-                  val pic =temp.getString("original_pic")
-                    //如果有图片的话获取图片
-                    if(!ObjectUtils.isEmpty(pic))
-                    {
-                        logger.info { "has Image"+temp.getString("original_pic")}
-                        file= picService.downPic(temp.getString("original_pic"))
-                    }
 
-                    Thread.sleep(2000);
-                  weiboService.addWeibo(text,file,1,userid,weiboid)
 
-                    status.add(temp)
+
                 }
 
 

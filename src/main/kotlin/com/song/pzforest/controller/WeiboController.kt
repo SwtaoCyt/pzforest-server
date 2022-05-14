@@ -47,6 +47,7 @@ class WeiboController{
     @RequestMapping("getAt")
     @ApiOperation("getAt")
     fun getAt() {
+
         weiboHttpServcie.getAt()
     }
 
