@@ -1,6 +1,9 @@
 package com.song.pzforest.serviceImpl
 
 import cn.hutool.core.convert.Convert
+import cn.hutool.core.date.DateField
+import cn.hutool.core.date.DateTime
+import cn.hutool.core.date.DateUtil
 import cn.hutool.core.io.FileUtil
 import com.song.pzforest.service.BanService
 import com.song.pzforest.service.BotService
@@ -24,6 +27,7 @@ import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.events.NewFriendRequestEvent
 import net.mamoe.mirai.message.*
+import net.mamoe.mirai.message.action.Nudge.Companion.sendNudge
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import net.mamoe.mirai.utils.BotConfiguration
@@ -103,11 +107,14 @@ open class BotServiceImpl:BotService{
 
     //发送菜单方法
     suspend fun Bot.sendMenu(qq: Long) {
-        bot.getFriend(qq)?.sendMessage("你好，我是培正森林发布机器人！\n" +
-                "请输入下面的任意一行命令开始（带上'/'号）\n" +
+        bot.getFriend(qq)?.sendMessage("hello，I am pzforest-bot！\n" +
+                "输入下方命令开始（带上 / 号）\n" +
                 "/发送微博\n" +
-                "/意见反馈")
+                "/意见反馈\n")
     }
+
+
+
 
 
     suspend fun Bot.getMessage(event:MessageEvent) {
@@ -118,12 +125,12 @@ open class BotServiceImpl:BotService{
         var map=HashMap<String,Objects>()
 
 
-        event.subject.sendMessage("请发送你要发送的文字与图片\n(十分钟后过期)")
+        event.subject.sendMessage("请在一条信息内发送图片和文字\n600秒后过期")
         //循环接收数据
         event.selectMessages {
             Thread.sleep(1000);
             //超时时间10分钟
-            timeout(60_0000) { event.subject.sendMessage("超时了！想好再发吧！");  }
+            timeout(60_0000) { event.subject.sendMessage("超时了，请下次再发");  }
             has<Image> {
                 // this: MessagePacket
                 // message: MessageChain
@@ -157,7 +164,7 @@ open class BotServiceImpl:BotService{
             }
             has<PlainText> {
                 text=message.contentToString().replace("[图片]","")
-                subject.sendMessage("正在处理,请稍后...")
+                subject.sendMessage("please wait a moment")
             }
 
 
@@ -167,8 +174,8 @@ open class BotServiceImpl:BotService{
         //检查字数，如果
         if (text.length>129)
         {
-            event.subject.sendMessage("您发的内容字数太多啦，我发不出去，重新写一段吧！")
-            event.subject.sendMessage("当前字数${text.length},超过限定的129个字，还需要减${text.length-129}个字数。")
+            event.subject.sendMessage("字数太多了！")
+            event.subject.sendMessage("当前字数${text.length}，还需要减${text.length-129}个字数。")
             bot.getMessage(event)
         }
 
@@ -180,26 +187,36 @@ open class BotServiceImpl:BotService{
             //如果他没有发送文字，那就补空格
             if(text.isEmpty())
             {
-                text="          "
+                text="                    "
             }
             logger.info(cacheService.get(event.sender.id).toString() )
 
             if(cacheService.get(event.sender.id).equals("\"notsendyet\""))
             {
-                event.subject.sendMessage("您要发送的内容如下:")
-                event.subject.sendMessage("$text")
+                event.subject.sendMessage("发送内容如下（防止被举报，部分内容不会在QQ里显示）:")
+                var testText=""
+                if(text.trim().length>10)
+                {
+                    testText = "${text.substring(0,3)}(中间在QQ省略)${text.substring(text.length-3,text.length)}"
+                }
+                else
+                {
+                    testText=text
+                }
+                event.subject.sendMessage("$testText")
                 if(!ObjectUtils.isEmpty(pic)) {
-                    event. subject.sendMessage(pic!!)
+                    event.subject.sendMessage("有一张图片")
+//                    event.subject.sendMessage(pic!!)
                 }
                 Thread.sleep(1000);
 
                 event.subject.sendMessage(
-                    "确认要发送吗？如果没问题的话请输入'确认'\n" +
-                            "如果取消的请输入'取消'"
+                    "没问题请输入'确认'\n" +
+                            "取消请输入'取消'"
                 )
                 event.whileSelectMessages{
                     default {
-                        subject.sendMessage("我不知道你在说啥")
+                        subject.sendMessage("我没听懂")
                         true
                     }
                     "确认"{
@@ -211,7 +228,7 @@ open class BotServiceImpl:BotService{
                     "取消"{
                         //redis删除该记录
                         redisTemplate.opsForValue().getAndDelete(event.sender.id.toString())
-                        subject.sendMessage("取消成功，重新开始请输入'/发送微博'")
+                        subject.sendMessage("取消成功")
                         event.intercept()
                         false
                     }
@@ -236,7 +253,7 @@ open class BotServiceImpl:BotService{
                 //接收好友请求
                 event.accept()
                 //通知管理群
-                bot.getGroup(869450527)?.sendMessage("机器人添加了新好友！QQ号是${event.fromId}")
+                bot.getGroup(869450527)?.sendMessage("New Friend!QQ号是${event.fromId}")
                 //发送菜单
                 Thread.sleep(5000);
                 bot.sendMenu(event.fromId)
@@ -278,12 +295,15 @@ open class BotServiceImpl:BotService{
 
 
                  } else{
-                     subject.sendMessage("冷却中，今天已经发送过了，或者正在发送当中，明天再来试试吧！")
+                     var getExpire=redisTemplate.getExpire(event.sender.id.toString())
+                     var nowDate=DateTime.now()
+                     var nextDate = DateUtil.offset(nowDate,DateField.SECOND, Convert.toInt(getExpire))
+                     subject.sendMessage("当前已经发送过了，或者正在发送当中，在$nextDate 后可以再次发送")
 
                  }
                  }
                 else
-                    subject.sendMessage("你被禁止发送了！")
+                    subject.sendMessage("你被封禁了")
 
 
             }

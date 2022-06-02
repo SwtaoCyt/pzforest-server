@@ -1,23 +1,18 @@
 server:
-  port: 8081
   servlet:
     encoding:
       charset: utf-8
 
 spring:
+#  运行环境，dev是开发环境，prod是上线环境
+  profiles:
+    active: prod
   main:
     allow-circular-references: true
-  redis:
-    host: 127.0.0.1
-    port: 6379
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
   datasource:
-    username: root
-    password: abc1392786**
-#    password: aaa86925876
-    url: jdbc:mysql://localhost:3306/pzforest?useSSL=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&serverTimezone=Asia/Shanghai   #mem：
     driver-class-name: com.mysql.cj.jdbc.NonRegisteringDriver
 
 
@@ -36,11 +31,3 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: false
-
-webconfig:
-  path: /var/wwwroot/image/
-
-#  path:
-qq:
-  id: 2138805098
-  password: aaa86925876

@@ -67,8 +67,15 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
                 logger.debug { e }
             }
             override fun onResponse(call: Call, response: Response) {
-                val str = response.body()?.string()
-//                logger.info { str }
+                val str =JSONObject.parseObject(response.body()?.string())
+                if(str.getString("error_code")==null)
+                {
+                    logger.info { "post成功，贴文Id:${str.getString("idstr")},发送时间:${str.getString("created_at")},内容:${str.getString("text")},图片:${str.getString("original_pic")}" }
+
+                }
+                else
+                    logger.info { "post失败,错误代码${str.getString("error_code")},错误信息:${str.getString("error")}" }
+
             }
         })
     }
@@ -96,9 +103,14 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
             }
             override fun onResponse(call: Call, response: Response) {
                 val str =JSONObject.parseObject(response.body()?.string())
-//                logger.info { str }
-                logger.info { "post成功，贴文Id:${str.getString("idstr")},发送时间:${str.getString("created_at")},内容:${str.getString("text")},图片:${str.getString("original_pic")}" }
 
+                if(str.getString("error_code")==null)
+                {
+                    logger.info { "post成功，贴文Id:${str.getString("idstr")},发送时间:${str.getString("created_at")},内容:${str.getString("text")},图片:${str.getString("original_pic")}" }
+
+                }
+                else
+                    logger.info { "post失败,错误代码${str.getString("error_code")},错误信息:${str.getString("error")}" }
             }
         })
     }

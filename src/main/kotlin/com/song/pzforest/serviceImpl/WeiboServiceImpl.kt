@@ -45,7 +45,9 @@ open class WeiboServiceImpl : ServiceImpl<WeiboMapper, Weibo>(), WeiboService {
     @Autowired
     lateinit var picMapper: PicMapper
 
-
+    /**
+     * 检查有问题的内容
+     */
     override fun checkBanWord(str: String): Map<String, Integer> {
 
         logger.info { "审核内容$str" }
@@ -56,7 +58,6 @@ open class WeiboServiceImpl : ServiceImpl<WeiboMapper, Weibo>(), WeiboService {
         for (banword in set!!) {
             //如果字数长度够了，就跳过
             if (banword?.length!! < str.length) {
-                logger.info { "字数符合条件，跳过" }
                 continue
             }
             //判断过滤词等级
@@ -75,7 +76,6 @@ open class WeiboServiceImpl : ServiceImpl<WeiboMapper, Weibo>(), WeiboService {
                 3 -> {
                     val temp: List<String> = banword.content!!.split(",")
                     for (t in temp) {
-                        logger.info { "case3循环判断$t" }
                         if (str.contains(t)) {
                             code = Integer(1)
                         } else {
@@ -131,7 +131,6 @@ open class WeiboServiceImpl : ServiceImpl<WeiboMapper, Weibo>(), WeiboService {
             var weibo=getWeibo(content,picContent,logintype,userId,DateTime.now(),weiboId)
             this.save(weibo)
             cacheService.add(userId, JSON.toJSONString(weibo))
-            logger.info { "发送成功！内容是$content,图片是${picContent!!.name}" }
         }catch (e:Exception){
             logger.debug { "报错了:$e" }
         }

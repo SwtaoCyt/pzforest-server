@@ -39,10 +39,10 @@ class WeiboController{
     @ApiOperation("测试")
     fun sendweibo(content:String)
     {
-        weiboService.addWeibo("1",2,"695901761")
+        weiboService.addWeibo("$content",2,"695901761")
     }
 
-    //        定时检测@我的微博，并实现发送
+    //定时检测@我的微博，并实现发送
     @Scheduled(fixedRate = 1000 * 60 * 5)
     @RequestMapping("getAt")
     @ApiOperation("getAt")
