@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.song.pzforest.mapper.UserMapper">
+
+
+    <resultMap id="BaseResultMap" type="com.song.pzforest.entity.User">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="userType" column="user_type" jdbcType="INTEGER"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="created" column="created" jdbcType="TIMESTAMP"/>
+        <result property="lastLogin" column="last_login" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="selectVo">
+        select
+            id,user_id,user_type,
+            user_name,avatar,password,
+            status,created,last_login
+        from m_user
+    </sql>
+    <select id="getUserByUserId" parameterType="integer" resultMap="BaseResultMap">
+        <include refid="selectVo"></include>
+        where user_id = #{userId}
+    </select>
+    <select id="getUserByUserName" parameterType="string" resultMap="BaseResultMap">
+        <include refid="selectVo"></include>
+        where user_name = #{userName}
+    </select>
+</mapper>

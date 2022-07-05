@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.song.pzforest.mapper.BanwordMapper">
+
+    <resultMap id="BaseResultMap" type="com.song.pzforest.entity.Banword">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="level" column="level" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="swap" column="swap" jdbcType="VARCHAR"/>
+        <result property="length" column="length" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,content,level,
+        create_time,swap,length
+    </sql>
+
+    <sql id="selectVo">
+        select id,content,level,create_time,swap,length from m_banword
+    </sql>
+
+    <select id="getAllBanWord" resultMap="BaseResultMap">
+        <include refid="selectVo"></include>
+    </select>
+</mapper>

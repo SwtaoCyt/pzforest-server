@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.song.pzforest.mapper.PicMapper">
+
+    <resultMap id="BaseResultMap" type="com.song.pzforest.entity.Pic">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="path" column="Path" jdbcType="VARCHAR"/>
+        <result property="name" column="Name" jdbcType="VARCHAR"/>
+        <result property="type" column="Type" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="selectVo">
+        select
+            ID,Path,Name,
+            Type
+        from m_pic
+    </sql>
+
+</mapper>
