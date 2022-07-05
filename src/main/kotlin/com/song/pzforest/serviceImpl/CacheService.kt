@@ -14,7 +14,9 @@ import mu.KotlinLogging;
 import org.junit.Test
 import org.junit.runners.Parameterized
 
-
+/*
+redis π§æﬂ¿‡
+ */
 @Component
 public class CacheService {
 

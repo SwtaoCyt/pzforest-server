@@ -14,6 +14,9 @@ import org.springframework.util.ObjectUtils
 import java.io.File
 import java.io.IOException
 
+/**
+ * 调用微博接口的所有方法
+ */
 @Service
 open class WeiboHttpServiceImpl :WeiboHttpServcie {
     val client: OkHttpClient = OkHttpClient()

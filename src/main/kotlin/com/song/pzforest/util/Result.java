@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-//题目返回结果工具类
 public class Result extends LinkedHashMap<String, Object> implements Serializable {
     public static final  long serialVersionUID=1l;
     public static final int  CODE_SUCCESS= 200;

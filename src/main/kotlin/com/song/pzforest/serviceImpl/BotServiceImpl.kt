@@ -51,7 +51,9 @@ import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 import kotlin.coroutines.CoroutineContext
 
-
+/**
+ * 机器人实现逻辑
+ */
 @Service
 open class BotServiceImpl:BotService{
 
@@ -107,10 +109,11 @@ open class BotServiceImpl:BotService{
 
     //发送菜单方法
     suspend fun Bot.sendMenu(qq: Long) {
-        bot.getFriend(qq)?.sendMessage("hello，I am pzforest-bot！\n" +
+        bot.getFriend(qq)?.sendMessage("你好,我是培正森林bot！\n" +
                 "输入下方命令开始（带上 / 号）\n" +
                 "/发送微博\n" +
-                "/意见反馈\n")
+                "/意见反馈\n" +
+                "/删除微博")
     }
 
 
@@ -125,7 +128,7 @@ open class BotServiceImpl:BotService{
         var map=HashMap<String,Objects>()
 
 
-        event.subject.sendMessage("请在一条信息内发送图片和文字\n600秒后过期")
+        event.subject.sendMessage("请在一条信息内发送图片和文字\n十分钟后超时")
         //循环接收数据
         event.selectMessages {
             Thread.sleep(1000);
@@ -164,7 +167,7 @@ open class BotServiceImpl:BotService{
             }
             has<PlainText> {
                 text=message.contentToString().replace("[图片]","")
-                subject.sendMessage("please wait a moment")
+                subject.sendMessage("...")
             }
 
 
@@ -184,7 +187,7 @@ open class BotServiceImpl:BotService{
             //检查是否有非法字符
             text = check.keys.iterator().next()
             Thread.sleep(1000);
-            //如果他没有发送文字，那就补空格
+            //如果他没有发送文字，那就补空格，懒狗处理方法
             if(text.isEmpty())
             {
                 text="                    "
@@ -193,42 +196,47 @@ open class BotServiceImpl:BotService{
 
             if(cacheService.get(event.sender.id).equals("\"notsendyet\""))
             {
-                event.subject.sendMessage("发送内容如下（防止被举报，部分内容不会在QQ里显示）:")
+                event.subject.sendMessage("你要发送的内容是下面这些吗？")
                 var testText=""
-                if(text.trim().length>10)
+                if(text.trim().length>12)
                 {
-                    testText = "${text.substring(0,3)}(中间在QQ省略)${text.substring(text.length-3,text.length)}"
+                    testText = "文字:${text.substring(0,4)}(在QQ中省略)${text.substring(text.length-4,text.length)}"
                 }
                 else
                 {
-                    testText=text
+                    testText=  "文字:"+text
                 }
                 event.subject.sendMessage("$testText")
                 if(!ObjectUtils.isEmpty(pic)) {
-                    event.subject.sendMessage("有一张图片")
+                    event.subject.sendMessage("图片:1张")
 //                    event.subject.sendMessage(pic!!)
+                }
+                else
+                {
+                    event.subject.sendMessage("图片:0张")
                 }
                 Thread.sleep(1000);
 
                 event.subject.sendMessage(
-                    "没问题请输入'确认'\n" +
-                            "取消请输入'取消'"
+                    "确认无误请输入'确认'\n" +
+                            "取消或重新发送请输入'取消'"
                 )
                 event.whileSelectMessages{
                     default {
-                        subject.sendMessage("我没听懂")
+                        subject.sendMessage("如需发送图片与文字，请在一条信息内完成!!输入 '取消' 重新开始\n"+
+                                "确认无误请输入'确认'\n")
                         true
                     }
                     "确认"{
                         if(!FileUtil.isEmpty(imageFile)) { weiboService.addWeibo(text,imageFile!!,2,event.sender.id.toString(),null) } else { weiboService.addWeibo(text,2,event.sender.id.toString()) }
-                        subject.sendMessage("发送成功！")
+                        subject.sendMessage("发送成功!")
                         bot.getGroup(869450527)?.sendMessage("有人发送微博了，内容:$text \nQQ号:${event.sender.id}")
                         false
                     }
                     "取消"{
                         //redis删除该记录
                         redisTemplate.opsForValue().getAndDelete(event.sender.id.toString())
-                        subject.sendMessage("取消成功")
+                        subject.sendMessage("取消成功,输入 '/发送微博' 重新开始")
                         event.intercept()
                         false
                     }
@@ -253,7 +261,7 @@ open class BotServiceImpl:BotService{
                 //接收好友请求
                 event.accept()
                 //通知管理群
-                bot.getGroup(869450527)?.sendMessage("New Friend!QQ号是${event.fromId}")
+                bot.getGroup(869450527)?.sendMessage("新好友!QQ号是${event.fromId}")
                 //发送菜单
                 Thread.sleep(5000);
                 bot.sendMenu(event.fromId)
@@ -281,9 +289,14 @@ open class BotServiceImpl:BotService{
                 }
             }
 
+            if(message.contentEquals("/删除微博")) {
+                subject.sendMessage("删除微博只能手动操作,请在微博上私信博主,主动说明需要删除哪一条微博,博主看见了就会删除。")
+
+            }
 
             if (message.contentEquals("/发送微博")||message.contentEquals("/发送微博\n")) {
-             if(ObjectUtils.isEmpty(banService.selectBanPeopleByUserId(event.sender.id)))
+                val ban =banService.selectBanPeopleByUserId(event.sender.id);
+             if(ObjectUtils.isEmpty(ban))
              {
                  //获取缓存中的用户记录
                  val getUser:String? =redisTemplate.opsForValue().get(event.sender.id.toString())
@@ -303,7 +316,10 @@ open class BotServiceImpl:BotService{
                  }
                  }
                 else
-                    subject.sendMessage("你被封禁了")
+             {
+                 subject.sendMessage("你被禁止发送了，封禁原因:${ban.banCause},封禁时间:${ban.createTime}")
+             }
+
 
 
             }
