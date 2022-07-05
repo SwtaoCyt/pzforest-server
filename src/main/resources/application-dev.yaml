@@ -1,0 +1,21 @@
+server:
+  port: 8088
+spring:
+  redis:
+    host: 192.168.2.14
+    port: 6379
+#    数据库配置
+  datasource:
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/pzforest
+webconfig:
+  path: D:/
+#机器人QQ
+qq:
+  id: 100000
+  password: 123456
+#日志保存目录
+logging:
+  file:
+    path: D:/log
