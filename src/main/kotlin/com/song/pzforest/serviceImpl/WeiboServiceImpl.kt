@@ -27,7 +27,6 @@ import java.util.*
 @Service
 open class WeiboServiceImpl : ServiceImpl<WeiboMapper, Weibo>(), WeiboService {
 
-
     private val logger = KotlinLogging.logger {}
 
     @Autowired
@@ -66,6 +65,8 @@ open class WeiboServiceImpl : ServiceImpl<WeiboMapper, Weibo>(), WeiboService {
                     if (str.contains(banword.content.toString())) {
                         logger.info { "存在过滤词语" + banword.content }
                         code =  Integer(1)
+                        result.put(str,code)
+                        return result
                     }
                 2 ->                             //检查字段是否存在过滤的词语
                     if (str.contains(banword.content.toString())) {
@@ -78,11 +79,13 @@ open class WeiboServiceImpl : ServiceImpl<WeiboMapper, Weibo>(), WeiboService {
                     for (t in temp) {
                         if (str.contains(t)) {
                             code = Integer(1)
+
                         } else {
                             code = Integer(0)
                             break
                         }
                     }
+
                 }
             }
 

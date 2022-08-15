@@ -85,7 +85,7 @@ open class BotServiceImpl:BotService{
         return  BotFactory.newBot(qq, password, object : BotConfiguration() {
             init {
                 fileBasedDeviceInfo()
-                protocol = MiraiProtocol.ANDROID_PAD
+                protocol = MiraiProtocol.ANDROID_PHONE
             }
         })
     }

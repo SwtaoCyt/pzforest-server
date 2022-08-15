@@ -1,6 +1,7 @@
 package com.song.pzforest.serviceImpl
 
 import cn.hutool.core.date.DateTime
+import com.alibaba.fastjson.JSONException
 import com.alibaba.fastjson.JSONObject
 import com.song.pzforest.service.PicService
 import com.song.pzforest.service.WeiboHttpServcie
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service
 import org.springframework.util.ObjectUtils
 import java.io.File
 import java.io.IOException
+import kotlin.math.log
 
 /**
  * 调用微博接口的所有方法
@@ -57,6 +59,7 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
             .addFormDataPart("access_token", getAccess_token())
             .addFormDataPart("pic",picContent.path,image)
             .addFormDataPart("status",status+" http://pzforest.com")
+            .addFormDataPart("rip","106.55.180.208")
             .build()
 
         val request = Request.Builder()
@@ -70,14 +73,41 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
                 logger.debug { e }
             }
             override fun onResponse(call: Call, response: Response) {
-                val str =JSONObject.parseObject(response.body()?.string())
-                if(str.getString("error_code")==null)
+
+
+                val check=response.body()?.string()
+                logger.info { check }
+
+                if (check != null) {
+                    if(check.contains("<center><h1>502 Bad Gateway</h1></center>")){
+                        logger.debug { "调用接口失败，返回Bad Gateway,尝试重新发送" }
+                        Thread.sleep(5000)
+                        send(status,picContent)
+                    }
+                }
+                try {
+                    val str =JSONObject.parseObject(check)
+                    if(str.getString("error_code")==null)
+                    {
+                        logger.info { "post成功，贴文Id:${str.getString("idstr")},发送时间:${str.getString("created_at")},内容:${str.getString("text")},图片:${str.getString("original_pic")}" }
+
+                    }
+                    else
+                        logger.info { "post失败,错误代码${str.getString("error_code")},错误信息:${str.getString("error")}" }
+
+                }catch (e:JSONException)
                 {
-                    logger.info { "post成功，贴文Id:${str.getString("idstr")},发送时间:${str.getString("created_at")},内容:${str.getString("text")},图片:${str.getString("original_pic")}" }
+                    logger.debug { e.message }
+                    logger.debug { response.body()?.string() }
+                }
+                catch (e:Exception)
+                {
+                    logger.debug { e.message }
+                    logger.debug { response.body()?.string() }
+                }
+                finally {
 
                 }
-                else
-                    logger.info { "post失败,错误代码${str.getString("error_code")},错误信息:${str.getString("error")}" }
 
             }
         })
@@ -92,6 +122,7 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
         val requestBody = FormBody.Builder()
             .add("status", status+" http://pzforest.com")
             .add("access_token",  getAccess_token())
+            .add("rip","106.55.180.208")
             .build()
 
         val request = Request.Builder()
@@ -105,15 +136,37 @@ open class WeiboHttpServiceImpl :WeiboHttpServcie {
                 logger.debug { e }
             }
             override fun onResponse(call: Call, response: Response) {
-                val str =JSONObject.parseObject(response.body()?.string())
+                val check=response.body()?.string()
+                logger.info { check }
+                if (check != null) {
+                    if(check.contains("<center><h1>502 Bad Gateway</h1></center>")){
+                            logger.info { "调用接口失败，返回Bad Gateway,尝试重新发送" }
+                            Thread.sleep(5000)
+                            send(status)
+                    }
+                    else
+                    {
+                        try {
+                            val str =JSONObject.parseObject(response.body()?.string())
 
-                if(str.getString("error_code")==null)
-                {
-                    logger.info { "post成功，贴文Id:${str.getString("idstr")},发送时间:${str.getString("created_at")},内容:${str.getString("text")},图片:${str.getString("original_pic")}" }
-
+                            if(str.getString("error_code")==null)
+                            { logger.info { "post成功，贴文Id:${str.getString("idstr")},发送时间:${str.getString("created_at")},内容:${str.getString("text")},图片:${str.getString("original_pic")}" } }
+                            else
+                                logger.info { "post失败,错误代码${str.getString("error_code")},错误信息:${str.getString("error")}" }
+                        }catch (e:JSONException){
+                            logger.debug { e.message }
+                            logger.debug { response.body()?.string() }
+                        }catch (e:Exception)
+                        {
+                            logger.debug { e.message }
+                            logger.debug { response.body()?.string() }
+                        }
+                    }
                 }
-                else
-                    logger.info { "post失败,错误代码${str.getString("error_code")},错误信息:${str.getString("error")}" }
+
+
+
+
             }
         })
     }

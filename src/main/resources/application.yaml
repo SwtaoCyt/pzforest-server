@@ -6,7 +6,7 @@ server:
 spring:
 #  运行环境，dev是开发环境，prod是上线环境
   profiles:
-    active: prod
+    active: dev
   main:
     allow-circular-references: true
   mvc:
